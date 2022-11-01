@@ -280,6 +280,7 @@ const volumeRenderingFragmentSource = `#version 300 es
           //   @TODO: Implement the front-to-back compositing here
           //
 
+          
 
 
 
@@ -289,7 +290,11 @@ const volumeRenderingFragmentSource = `#version 300 es
           //   @TODO: Implement the first hitpoint compositing here
           //
 
-
+          
+            result = color;
+            t = tEnd; //End the loop
+           
+         
 
 
 
@@ -298,7 +303,14 @@ const volumeRenderingFragmentSource = `#version 300 es
           //
           //   @TODO: Implement the maximum-intensity projection here
           //
+          
+          
+          if (color.a > result.a) {
 
+            result = color; 
+
+          }
+          //Only assign the highest alpha value...
 
 
 
