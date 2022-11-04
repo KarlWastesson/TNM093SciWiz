@@ -205,7 +205,7 @@ const volumeRenderingFragmentSource = `#version 300 es
   uniform int renderType;             // The value of the 'Rendering output' parameter
   uniform int compositingMethod;      // The value of the 'Compositing method' parameter
 
-  vec4 placeholder = vec4(0.0);
+
   // Poor man's enum for the compositing methods.  If additional compositing methods are
   // added, they have to be accounted for in the rendering function as well
   const int CompositingMethodFrontToBack = 0;
@@ -275,16 +275,16 @@ const volumeRenderingFragmentSource = `#version 300 es
           // 150 is a randomly chosen value to serve as a reference contribution
           const float ReferenceSamplingInterval = 150.0;
           color.a = 1.0 - pow(1.0 - color.a, tIncr * ReferenceSamplingInterval);
-          
+
           //
           //   @TODO: Implement the front-to-back compositing here
           //
 
           
-          result.rgb = (1.0f - placeholder.a) * color.rgb * color.a + placeholder.rgb; 
-          result.a = (1.0f - placeholder.a) * color.a + placeholder.a; 
-          placeholder = color;
+          result.rgb = (1.0f - result.a) * color.rgb * color.a + result.rgb; 
+          result.a = (1.0f - result.a) * color.a + result.a; 
           
+
 
         }
         else if (compositingMethod == CompositingMethodFirstHitPoint) {
@@ -295,7 +295,7 @@ const volumeRenderingFragmentSource = `#version 300 es
           
             result = color;
             t = tEnd; //End the loop
-          
+           
          
 
 
@@ -428,7 +428,7 @@ function createProgram(gl, vertexSource, fragmentSource) {
       return shader;
     }
   }
- 
+
   // Create the vertex shader object
   let vertexShader = loadShader(gl, gl.VERTEX_SHADER, vertexSource);
   // Create the fragment shader object
@@ -477,36 +477,30 @@ function updateTransferFunction(gl, transferFunction) {
   // function.  Each value is stored sequentially (RGBA,RGBA,RGBA,...) for 256 values,
   // which get mapped to [0, 1] by OpenGL
   let data = new Uint8Array(256 * 4);
-  let data2 = new Uint8Array(256*4);
-  
-  let cutoff2=256*2;
-  for(i = 0; i < cutoff2; i+=4)
-  {
-    data2[i] = 255;
-    data2[i+1] = 0;
-    data2[i+2] = 0;
-    data2[i+3] = 255;
+
+
+  if (document.getElementById('useCustomTransf').checked)
+  { 
+
+    let R = document.getElementById('TransferR').value;
+    let G = document.getElementById('TransferG').value;
+    let B = document.getElementById('TransferB').value;
+    let A = document.getElementById('TransferA').value;
+
+    for(let i = 0; i < 256*4; i+=4)
+    
+    {
+
+      data[i] = R;
+      data[i+1] = G;
+      data[i+2] = B;
+      data[i+3] = A;
+
+    }
 
   }
-  for(i = cutoff2; i < cutoff2*2; i+=4)
-  {
-    data2[i] = 0;
-    data2[i+1] = 255;
-    data2[i+2] = 0;
-    data2[i+3] = 255;
+  else{
 
-  }
-  // for(i = 3; i < 256*4 -1; i+=4)
-  // {
-  //   data[i] = 255;
-
-  // }
-
-  // for(i = 0; i < 256*4 -1; i+=4)
-  // {
-  //   data[i] = 255;
-
-  // }
   ////////////////////////////////////////////////////////////////////////////////////////
   /// Beginning of the provided transfer function
 
@@ -515,8 +509,7 @@ function updateTransferFunction(gl, transferFunction) {
   // the image.  The remainder of the ramp is just using different angles for the color
   // components
   const cutoff = 50;
-
-
+  
   for (let i = 0; i < cutoff * 4; i += 4) {
     // Set RGBA all to 0
     data[i] = 0;
@@ -535,7 +528,12 @@ function updateTransferFunction(gl, transferFunction) {
     data[i + 2] = 3 * it;
     data[i + 3] = it;
   }
-  //Loop indexet är färgen. assigna data[xx] där vi vill ha färgen.
+
+  }
+
+
+
+
   /// End of the provided transfer function
   ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -545,7 +543,7 @@ function updateTransferFunction(gl, transferFunction) {
   // Upload the new data to the texture
   console.log(117, "Updating the transfer function texture");
   gl.bindTexture(gl.TEXTURE_2D, transferFunction);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 256, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, data2);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 256, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
 }
 
 
@@ -1039,10 +1037,14 @@ function postError(msg) {
 
 </script>
 
-
+<head>
+  <link rel="stylesheet" href="styles.css">
+</head>
 <body onload="main();">
   <p id="error"></p>
   <canvas id="glCanvas" width="640" height="480"></canvas>
+  <div class="container">
+  <div class="RenderingPar">
   <p>
     Rendering parameters
     <div>Step size: <input type="range" min="10" max="10000" value="1000" class="slider" id="stepSize" oninput="triggerRendering();"> </div>
@@ -1070,11 +1072,35 @@ function postError(msg) {
       <div><input type="radio" name="debug-output" value="slice" onchange="triggerRendering();">Volume Slice</div>
       <div><input type="radio" name="debug-output" value="slice-transfer" onchange="triggerRendering();">Volume Slice with transfer function</div>
   </p>
-
+</div>
   <!--
     Add some UI elements here to modify the transfer function.  As mentioned above, you need to call the function 'triggerTransferFunctionUpdate' to trigger and update of the GPU representation of the transfer function texture.  If you don't call that function, no change will be visible.
   -->
+  <div class="transferUI">
+  <div id="like_button_container"></div>
+    
+  <p>
+    <input type="checkbox" id="useCustomTransf" name="transferCheckBox" value="Yes">
+    Use Custom TransferFunction?
+      <div> R: <input type="range" min="0" max="255" value="0" class="slider" id="TransferR" oninput="triggerTransferFunctionUpdate();"></div>
+      <div> G: <input type="range" min="0" max="255" value="0" class="slider" id="TransferG" oninput="triggerTransferFunctionUpdate();"></div>
+      <div> B: <input type="range" min="1" max="255" value="0" class="slider" id="TransferB" oninput="triggerTransferFunctionUpdate();"></div>
+      <div> A: <input type="range" min="1" max="255" value="0" class="slider" id="TransferA" oninput="triggerTransferFunctionUpdate();"></div>
 
+
+
+  </p>
+
+
+  <!--Load react-->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+
+  <!-- Load our React component. -->
+  
+  <script src="like_button.js"></script>
+</div>
+</div>
 
 </body>
 
