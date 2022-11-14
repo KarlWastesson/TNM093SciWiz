@@ -464,35 +464,66 @@
       let alphaA = document.getElementById('alphaA').value;
       widthA = parseInt(widthA);
       startA = parseInt(startA);
-   
-      let widthB = document.getElementById('widthB').value;
-      let startB = document.getElementById('startB').value; 
-      let alphaB = document.getElementById('alphaB').value;  
-      widthB = parseInt(widthB);
-      startB = parseInt(startB);
-  
-      let widthC = document.getElementById('widthC').value;
-      let startC = document.getElementById('startC').value;  
-      let alphaC = document.getElementById('alphaC').value;
-      widthC = parseInt(widthC);
-      startC = parseInt(startC)
-  
-      let widthD = document.getElementById('widthD').value;
-      let startD = document.getElementById('startD').value; 
-      let alphaD = document.getElementById('alphaD').value; 
-      widthD = parseInt(widthD);
-      startD = parseInt(startD);
-    
-     
-  
       while(startA%4 !=0){startA++;}
-      while(widthA%4 !=0){ widthA++;} 
-      while(startB%4 !=0){startB++; }
-      while(widthB%4 !=0){ widthB++; } 
-      while(startC%4 !=0){startC++;}
-      while(widthC%4 !=0){ widthC++;} 
+      while(widthA%4 !=0){ widthA++;}
+   
+      let widthB, startB, alphaB;
+    
+      
+      if(document.getElementById('useColB').checked)
+      {
+         widthB = document.getElementById('widthB').value;
+         startB = document.getElementById('startB').value; 
+         alphaB = document.getElementById('alphaB').value; 
+
+        widthB = parseInt(widthB);
+        startB = parseInt(startB);
+        while(startB%4 !=0){startB++; }
+        while(widthB%4 !=0){ widthB++; }
+
+
+      }else {widthB = 0; startB = 0; alphaB = 0;}
+      
+  
+      let widthC, startC, alphaC;
+      
+
+      if(document.getElementById('useColC').checked)
+      {
+         widthC = document.getElementById('widthC').value;
+         startC = document.getElementById('startC').value;  
+         alphaC = document.getElementById('alphaC').value; 
+
+         widthC = parseInt(widthC);
+         startC = parseInt(startC);
+         while(startC%4 !=0){startC++;}
+         while(widthC%4 !=0){ widthC++;} 
+    
+
+      }else {widthC = 0; startC = 0; alphaC = 0;}
+      
+   
+
+  
+      let widthD, startD, alphaD; 
+
+      if(document.getElementById('useColD').checked)
+      {
+         widthD = document.getElementById('widthD').value;
+         startD = document.getElementById('startD').value; 
+         alphaD = document.getElementById('alphaD').value; 
+
+       widthD = parseInt(widthD);
+       startD = parseInt(startD);
+          
       while(startD%4 !=0){startD++; }
       while(widthD%4 !=0){ widthD++; } 
+
+
+      }else {widthD = 0; startD = 0; alphaD = 0;}
+     
+    
+     
       
       for(let i = startA; i <startA+widthA; i+=4 )
       {
@@ -521,14 +552,31 @@
 
       }
 
-      for(let i = startC; i <startC+widthC; i+=4 )
+      for(let i = startB+widthB; i <startC; i+=4 )
       {
+       
+        data[i + 3] = ((alphaB + alphaC)/2)* i/(startC)
+
+      }
+
+
+      for(let i = startC; i < startC+widthC; i+=4 )
+      {
+        
         data[i] = color3.r;
         data[i + 1] = color3.g;
         data[i + 2] = color3.b;
         data[i + 3] = alphaC;
+          
+      }
+
+      for(let i = startC+widthC; i <startD; i+=4 )
+      {
+       
+        data[i + 3] = ((alphaC + alphaD)/2)* i/(startD)
 
       }
+
 
       for(let i = startD; i <startD+widthD; i+=4 )
       {
@@ -573,7 +621,29 @@
   
   }
   
+  var c = document.getElementById("myCanvas");
+  var ctx = c.getContext("2d");
+  var imgData = ctx.createImageData(256, 256);
+
+  var i;
+ let k=0;
+for (i = 0; i < imgData.data.length; i++) {
+ 
+  if(i%1024 == 0 && i !=0)
+  {
+    k +=1024;
+   
+  }
+ 
+  imgData.data[i] = data[i-k];
+  imgData.data[i+1] = data[i-k+1];
+  imgData.data[i+2] = data[i-k+2];
+  imgData.data[i+3] = data[i-k+3];
   
+}
+
+
+ctx.putImageData(imgData, 0, 0)
   
   
     /// End of the provided transfer function
@@ -586,6 +656,8 @@
     console.log(117, "Updating the transfer function texture");
     gl.bindTexture(gl.TEXTURE_2D, transferFunction);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 256, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+    
+   
   }
   
   
@@ -778,7 +850,7 @@
   async function main() {
     // Get the canvas object from the main document
     let canvas = document.querySelector("#glCanvas");
-  
+    
     // Get a WebGL 2.0 context from the canvas
     let gl = canvas.getContext("webgl2");
   
@@ -1090,6 +1162,8 @@
   <body onload="main();">
     <p id="error"></p>
     <canvas id="glCanvas" width="640" height="480"></canvas>
+    <canvas id="myCanvas" width="640" height="480">
+      Your browser does not support the HTML5 canvas tag.</canvas>
     <div class="container">
     <div class="RenderingPar">
     <p>
@@ -1132,25 +1206,28 @@
     <div id="like_button_container"></div>
       
     <p>
-      <input type="checkbox" id="useCustomTransf" name="transferCheckBox" value="Yes">
+      <input type="checkbox" id="useCustomTransf"  value="Yes" oninput="triggerTransferFunctionUpdate();">
       Use Custom TransferFunction?
         <div> 1: <input type="color" id="colorA" oninput="triggerTransferFunctionUpdate();"></div>
-        <div> Alpha: <input type="range" min="0" max="256" value="256" class="slider" id="alphaA" oninput="triggerTransferFunctionUpdate();"></div>
+        <div> Alpha: <input type="range" min="0" max="255" value="255" class="slider" id="alphaA" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Start: <input type="range" min="0" max="1024" value="0" class="slider" id="startA" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Width: <input type="range" min="0" max="1024" value="128" class="slider" id="widthA" oninput="triggerTransferFunctionUpdate();"></div>
-        
+Use Color B.
+        <input type="checkbox" id="useColB" value="No" oninput="triggerTransferFunctionUpdate();">
         <div> 2: <input type="color" id="colorB" oninput="triggerTransferFunctionUpdate();"></div>
-        <div> Alpha: <input type="range" min="0" max="256" value="256" class="slider" id="alphaB" oninput="triggerTransferFunctionUpdate();"></div>
+        <div> Alpha: <input type="range" min="0" max="255" value="255" class="slider" id="alphaB" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Start: <input type="range" min="0" max="1024" value="256" class="slider" id="startB" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Width: <input type="range" min="0" max="1024" value="128" class="slider" id="widthB" oninput="triggerTransferFunctionUpdate();"></div>
-  
+Use Color C.
+        <input type="checkbox" id="useColC" value="No" oninput="triggerTransferFunctionUpdate();">
         <div> 3: <input type="color"  id="colorC" oninput="triggerTransferFunctionUpdate();"></div>
-        <div> Alpha: <input type="range" min="0" max="256" value="256" class="slider" id="alphaC" oninput="triggerTransferFunctionUpdate();"></div>
+        <div> Alpha: <input type="range" min="0" max="255" value="255" class="slider" id="alphaC" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Start: <input type="range" min="0" max="1024" value="512" class="slider" id="startC" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Width: <input type="range" min="0" max="1024" value="128" class="slider" id="widthC" oninput="triggerTransferFunctionUpdate();"></div>
-  
+Use Color D.
+        <input type="checkbox" id="useColD"  value="No" oninput="triggerTransferFunctionUpdate();">
         <div> 4: <input type="color" id="colorD" oninput="triggerTransferFunctionUpdate();"></div>
-        <div> Alpha: <input type="range" min="0" max="256" value="256" class="slider" id="alphaD" oninput="triggerTransferFunctionUpdate();"></div>
+        <div> Alpha: <input type="range" min="0" max="255" value="255" class="slider" id="alphaD" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Start: <input type="range" min="0" max="1024" value="768" class="slider" id="startD" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Width: <input type="range" min="0" max="1024" value="128" class="slider" id="widthD" oninput="triggerTransferFunctionUpdate();"></div>
        
