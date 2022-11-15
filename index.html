@@ -462,30 +462,36 @@
       let widthA = document.getElementById('widthA').value;
       let startA = document.getElementById('startA').value;
       let alphaA = document.getElementById('alphaA').value;
+      let GradA = document.getElementById('sliderGradA').value;
       widthA = parseInt(widthA);
       startA = parseInt(startA);
+      GradA = parseInt(GradA)
       while(startA%4 !=0){startA++;}
       while(widthA%4 !=0){ widthA++;}
+      while(GradA%4 !=0){ GradA++;}
    
-      let widthB, startB, alphaB;
+      let widthB, startB, alphaB, GradB;
     
       
       if(document.getElementById('useColB').checked)
       {
          widthB = document.getElementById('widthB').value;
          startB = document.getElementById('startB').value; 
-         alphaB = document.getElementById('alphaB').value; 
+         alphaB = document.getElementById('alphaB').value;
+         GradB = document.getElementById('sliderGradB').value;
 
         widthB = parseInt(widthB);
         startB = parseInt(startB);
+        GradB = parseInt(GradB);
         while(startB%4 !=0){startB++; }
         while(widthB%4 !=0){ widthB++; }
+        while(GradB%4 !=0){ GradB++; }
 
 
-      }else {widthB = 0; startB = 0; alphaB = 0;}
+      }else {widthB = 0; startB = 0; alphaB = 0; GradB = 0;}
       
   
-      let widthC, startC, alphaC;
+      let widthC, startC, alphaC, GradC;
       
 
       if(document.getElementById('useColC').checked)
@@ -493,118 +499,182 @@
          widthC = document.getElementById('widthC').value;
          startC = document.getElementById('startC').value;  
          alphaC = document.getElementById('alphaC').value; 
+         GradC = document.getElementById('sliderGradC').value;
 
          widthC = parseInt(widthC);
          startC = parseInt(startC);
+         GradC = parseInt(GradC)
          while(startC%4 !=0){startC++;}
          while(widthC%4 !=0){ widthC++;} 
+         while(GradC%4 !=0){ GradC++;} 
     
 
-      }else {widthC = 0; startC = 0; alphaC = 0;}
+      }else {widthC = 0; startC = 0; alphaC = 0; GradC = 0;}
       
    
 
   
-      let widthD, startD, alphaD; 
+      let widthD, startD, alphaD, GradD; 
 
       if(document.getElementById('useColD').checked)
       {
          widthD = document.getElementById('widthD').value;
          startD = document.getElementById('startD').value; 
          alphaD = document.getElementById('alphaD').value; 
+         GradD = document.getElementById('sliderGradD').value;
 
        widthD = parseInt(widthD);
        startD = parseInt(startD);
+       GradD = parseInt(GradD);
           
       while(startD%4 !=0){startD++; }
       while(widthD%4 !=0){ widthD++; } 
+      while(GradD%4 !=0){ GradD++; } 
 
 
-      }else {widthD = 0; startD = 0; alphaD = 0;}
-     
-    
-     
+      }else {widthD = 0; startD = 0; alphaD = 0; GradD = 0;}
       
-      for(let i = startA; i <startA+widthA; i+=4 )
+
+
+    for(i = startA - GradA; i < startA+widthA+GradA; i+=4)
+    {
+
+      if(i < startA)
       {
-        data[i] = color1.r;
-        data[i + 1] = color1.g;
-        data[i + 2] = color1.b;
-        data[i + 3] = alphaA;
-
-      }
-      
-      let alpha;
-      for(let i = startA+widthA; i <startB; i+=4 )
-      {
-
-        if(i < ((startB+startA+widthA)/2))
-        {
-
-          alpha = ((startA+widthA)/(startA+widthA))*255 - ((i-startA-widthA)/((startB - startA-widthA)/2))*255;
-            
-        }
-        else 
-        {
-
-          alpha = -(((startA+widthA)/(startA+widthA))*255 - ((i-startA-widthA)/((startB - startA-widthA)/2))*255);
-        }
-        
-        
-        data[i] = (((startA+widthA/i))*color1.r + (i/startB)*color2.r)
-        data[i + 1] = (((startA+widthA/i))*color1.g + (i/startB)*color2.g);
-        data[i + 2] = (((startA+widthA/i))*color1.b + (i/startB)*color2.b);
-        data[i + 3] = alpha
-      
+         data[i] = color1.r;
+         data[i + 1] = color1.g;
+         data[i + 2] = color1.b;
+         data[i + 3] = alphaA*(i - (startA-GradA))/(GradA);
        
-        
-        console.log(alpha)
+      }
+ 
+      if(startA <= i && i <= startA + widthA)
+      {
+
+         data[i] = color1.r;
+         data[i + 1] = color1.g;
+         data[i + 2] = color1.b;
+         data[i + 3] = alphaA;
+
       }
 
-         
-      for(let i = startB; i <startB+widthB; i+=4 )
+      
+      if(startA + widthA < i && i < startA + widthA + GradA )
       {
+         data[i] = color1.r;
+         data[i + 1] = color1.g;
+         data[i + 2] = color1.b;        
+         data[i + 3] = (alphaA - ((i-startA-widthA)/((startA+widthA+GradA - startA-widthA)))*alphaA);
+       
+      }
+
+    }
+     
+    for(i = startB - GradB; i < startB+widthB+GradB; i+=4)
+    {
+
+      if(i < startB)
+      {
+         data[i] = color2.r;
+         data[i + 1] = color2.g;
+         data[i + 2] = color2.b;
+         data[i + 3] = alphaB*(i - (startB-GradB))/(GradB);
+       
+      }
+ 
+      if(startB <= i && i <= startB + widthB)
+      {
+
         data[i] = color2.r;
         data[i + 1] = color2.g;
         data[i + 2] = color2.b;
         data[i + 3] = alphaB;
+         
 
       }
 
-      for(let i = startB+widthB; i <startC; i+=4 )
+      
+      if(startB + widthB < i && i < startB + widthB + GradB )
       {
+         data[i] = color2.r;
+         data[i + 1] = color2.g;
+         data[i + 2] = color2.b;        
+         data[i + 3] = (alphaB - ((i-startB-widthB)/((startB+widthB+GradB - startB-widthB)))*alphaB);
        
-        data[i + 3] = 256* i/(startC)
-     
       }
 
+    }
 
-      for(let i = startC; i < startC+widthC; i+=4 )
+    for(i = startC - GradC; i < startC+widthC+GradC; i+=4)
+    {
+
+      if(i < startC)
       {
-        
+         data[i] = color3.r;
+         data[i + 1] = color3.g;
+         data[i + 2] = color3.b;
+         data[i + 3] = alphaC*(i - (startC-GradC))/(GradC);
+       
+      }
+ 
+      if(startC <= i && i <= startC + widthC)
+      {
+
         data[i] = color3.r;
         data[i + 1] = color3.g;
         data[i + 2] = color3.b;
         data[i + 3] = alphaC;
-          
+         
+
       }
 
-      for(let i = startC+widthC; i <startD; i+=4 )
+      
+      if(startC + widthC < i && i < startC + widthC + GradC )
       {
-       
-        data[i + 3] = 256* i/(startD)
+         data[i] = color3.r;
+         data[i + 1] = color3.g;
+         data[i + 2] = color3.b;        
+         data[i + 3] = (alphaC - ((i-startC-widthC)/((startC+widthC+GradC - startC-widthC)))*alphaC);
        
       }
 
+    }
 
-      for(let i = startD; i <startD+widthD; i+=4 )
+    for(i = startD - GradD; i < startD+widthD+GradD; i+=4)
+    {
+
+      if(i < startD)
       {
-        data[i] = color4.r;
-        data[i + 1] = color4.g;
-        data[i + 2] = color4.b;
-        data[i + 3] = alphaD;
+         data[i] = color4.r;
+         data[i + 1] = color4.g;
+         data[i + 2] = color4.b;
+         data[i + 3] = alphaD*(i - (startD-GradD))/(GradD);
+       
+      }
+ 
+      if(startD <= i && i <= startD + widthD)
+      {
+
+         data[i] = color4.r;
+         data[i + 1] = color4.g;
+         data[i + 2] = color4.b;
+         data[i + 3] = alphaD;
 
       }
+
+      
+      if(startD + widthD < i && i < startD + widthD + GradD )
+      {
+         data[i] = color4.r;
+         data[i + 1] = color4.g;
+         data[i + 2] = color4.b;        
+         data[i + 3] = (alphaD - ((i-startD-widthD)/((startD+widthD+GradD - startD-widthD)))*alphaD);
+       
+      }
+
+    }        
+  
+
 
       
     }
@@ -1231,24 +1301,28 @@ ctx.putImageData(imgData, 0, 0)
         <div> Alpha: <input type="range" min="0" max="255" value="255" class="slider" id="alphaA" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Start: <input type="range" min="0" max="1024" value="0" class="slider" id="startA" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Width: <input type="range" min="0" max="1024" value="128" class="slider" id="widthA" oninput="triggerTransferFunctionUpdate();"></div>
+        <div> Gradient: <input type="range" min="0" max="256" value="50" class="slider" id="sliderGradA" oninput="triggerTransferFunctionUpdate();"></div>
 Use Color B.
         <input type="checkbox" id="useColB" value="No" oninput="triggerTransferFunctionUpdate();">
         <div> 2: <input type="color" id="colorB" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Alpha: <input type="range" min="0" max="255" value="255" class="slider" id="alphaB" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Start: <input type="range" min="0" max="1024" value="256" class="slider" id="startB" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Width: <input type="range" min="0" max="1024" value="128" class="slider" id="widthB" oninput="triggerTransferFunctionUpdate();"></div>
+        <div> Gradient: <input type="range" min="0" max="256" value="50" class="slider" id="sliderGradB" oninput="triggerTransferFunctionUpdate();"></div>
 Use Color C.
         <input type="checkbox" id="useColC" value="No" oninput="triggerTransferFunctionUpdate();">
         <div> 3: <input type="color"  id="colorC" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Alpha: <input type="range" min="0" max="255" value="255" class="slider" id="alphaC" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Start: <input type="range" min="0" max="1024" value="512" class="slider" id="startC" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Width: <input type="range" min="0" max="1024" value="128" class="slider" id="widthC" oninput="triggerTransferFunctionUpdate();"></div>
+        <div> Gradient: <input type="range" min="0" max="256" value="50" class="slider" id="sliderGradC" oninput="triggerTransferFunctionUpdate();"></div>
 Use Color D.
         <input type="checkbox" id="useColD"  value="No" oninput="triggerTransferFunctionUpdate();">
         <div> 4: <input type="color" id="colorD" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Alpha: <input type="range" min="0" max="255" value="255" class="slider" id="alphaD" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Start: <input type="range" min="0" max="1024" value="768" class="slider" id="startD" oninput="triggerTransferFunctionUpdate();"></div>
         <div> Width: <input type="range" min="0" max="1024" value="128" class="slider" id="widthD" oninput="triggerTransferFunctionUpdate();"></div>
+        <div> Gradient: <input type="range" min="0" max="256" value="50" class="slider" id="sliderGradD" oninput="triggerTransferFunctionUpdate();"></div>
        
   
   
