@@ -534,12 +534,31 @@
 
       }
       
-      
+      let alpha;
       for(let i = startA+widthA; i <startB; i+=4 )
       {
-       
-        data[i + 3] = ((alphaA + alphaB)/2)* i/(startB)
 
+        if(i < ((startB+startA+widthA)/2))
+        {
+
+          alpha = ((startA+widthA)/(startA+widthA))*255 - ((i-startA-widthA)/((startB - startA-widthA)/2))*255;
+            
+        }
+        else 
+        {
+
+          alpha = -(((startA+widthA)/(startA+widthA))*255 - ((i-startA-widthA)/((startB - startA-widthA)/2))*255);
+        }
+        
+        
+        data[i] = (((startA+widthA/i))*color1.r + (i/startB)*color2.r)
+        data[i + 1] = (((startA+widthA/i))*color1.g + (i/startB)*color2.g);
+        data[i + 2] = (((startA+widthA/i))*color1.b + (i/startB)*color2.b);
+        data[i + 3] = alpha
+      
+       
+        
+        console.log(alpha)
       }
 
          
@@ -555,8 +574,8 @@
       for(let i = startB+widthB; i <startC; i+=4 )
       {
        
-        data[i + 3] = ((alphaB + alphaC)/2)* i/(startC)
-
+        data[i + 3] = 256* i/(startC)
+     
       }
 
 
@@ -573,8 +592,8 @@
       for(let i = startC+widthC; i <startD; i+=4 )
       {
        
-        data[i + 3] = ((alphaC + alphaD)/2)* i/(startD)
-
+        data[i + 3] = 256* i/(startD)
+       
       }
 
 
